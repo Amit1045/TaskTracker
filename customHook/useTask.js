@@ -78,7 +78,7 @@ export const useTask = create((set) => ({
 
     EditEntity: async (id, updatedData) => {
         try {
-          const res = await fetch(`http://localhost:8000/api/edit/${id}`, {
+          const res = await fetch(`${baseUrl}/edit/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updatedData),
