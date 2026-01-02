@@ -1,6 +1,5 @@
 import { create } from 'zustand'
-const baseUrl="http://localhost:8000/api"
-
+const baseUrl=import.meta.env.VITE_API_URL;
 export const useTask = create((set) => ({
     tasks: [],
     loading: false,
