@@ -21,7 +21,7 @@ export const useTask = create((set) => ({
                 set({ error: "Failed to load the error" })
             }
         } catch (error) {
-            set({ error: err.message, loading: false });
+            set({ error: error.message, loading: false });
         }
     },
 
