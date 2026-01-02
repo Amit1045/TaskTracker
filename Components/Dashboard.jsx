@@ -217,13 +217,12 @@ const Filter = ({ onApply, onClear }) => {
 
 /* ----------------------------- Dashboard ------------------------------- */
 const Dashboard = () => {
-
   const { tasks, fetchtasks, loading } = useTask();
+
   const [showFilter, setShowFilter] = useState(false);
   const [filteredtasks, setFilteredtasks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilters, setActiveFilters] = useState({});
-
 
   useEffect(() => {
     fetchtasks();
@@ -233,7 +232,6 @@ const Dashboard = () => {
     applyAllFilters();
   }, [tasks, searchTerm, activeFilters]);
 
-  //  Combine Search + Filters in one function
   const applyAllFilters = () => {
     let result = [...tasks];
     const today = new Date();
@@ -246,25 +244,24 @@ const Dashboard = () => {
       );
     }
 
-    // ✅ Status Filter
+    // Status
     if (activeFilters.status?.length) {
       result = result.filter(task =>
         activeFilters.status.includes(task.status)
       );
     }
 
-    // ✅ Priority Filter
+    // Priority
     if (activeFilters.priority?.length) {
       result = result.filter(task =>
         activeFilters.priority.includes(task.priority)
       );
     }
 
-    // ✅ Due Date Filter
+    // Due Date
     if (activeFilters.dueDate?.length) {
       result = result.filter(task => {
         if (!task.dueDate) return false;
-
         const due = new Date(task.dueDate);
         due.setHours(0, 0, 0, 0);
 
@@ -277,116 +274,96 @@ const Dashboard = () => {
       });
     }
 
-    // 🔥 SORT BY NEAREST DUE DATE
-    result.sort((a, b) => {
-      if (!a.dueDate && !b.dueDate) return 0;
-      if (!a.dueDate) return 1; // a goes last
-      if (!b.dueDate) return -1; // b goes last
-
-      return new Date(a.dueDate) - new Date(b.dueDate);
-    });
-
+    // Sort by nearest date
+    result.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
     setFilteredtasks(result);
   };
 
-  const handleFilterApply = (filters) => {
-    setActiveFilters(filters);
-    setShowFilter(false);
-  };
-
-  const handleFilterClear = () => {
-    setActiveFilters({});
-    setShowFilter(false);
-  };
-
-  const handleView = (id) => alert(`Viewing details for Entity ID: ${id}`);
-
   return (
-    <div className="flex bg-gray-100   min-h-screen">
+    <div className="min-h-screen bg-gray-100">
+      {/* HEADER */}
+      <header className="sticky top-0 z-30 bg-white shadow-sm border-b px-4 py-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2">
+            <FiCheckCircle className="text-blue-600 text-xl" />
+            <h1 className="text-lg font-bold text-gray-800">
+              Task<span className="text-blue-600">Tracker</span>
+            </h1>
+          </Link>
 
-
-      <section className="flex-1 flex flex-col">
-        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200 px-6 py-3 flex items-center justify-between">
-          <Link to={'/'}>
-            <div className="flex items-center gap-2">
-              <FiCheckCircle className="text-blue-600 text-xl" />
-              <h1 className="text-xl font-bold text-gray-800">
-                Task<span className="text-blue-600">Tracker</span>
-              </h1>
-            </div></Link>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center bg-gray-100 rounded-lg px-3">
+          {/* Search + Actions */}
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            {/* Search */}
+            <div className="relative flex items-center bg-gray-100 rounded-lg px-3 w-full sm:w-64">
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search..."
-                className="bg-transparent outline-none py-2 px-2 text-sm w-48"
+                placeholder="Search tasks..."
+                className="bg-transparent outline-none py-2 px-2 text-sm w-full"
               />
-              <FiFilter className="text-gray-500" onClick={() => setShowFilter(!showFilter)} />
+              <FiFilter
+                className="text-gray-500 cursor-pointer"
+                onClick={() => setShowFilter(!showFilter)}
+              />
+
+              {showFilter && (
+                <div className="absolute top-12 left-0 w-full sm:w-auto sm:left-auto sm:right-0">
+                  <Filter
+                    onApply={(f) => { setActiveFilters(f); setShowFilter(false); }}
+                    onClear={() => { setActiveFilters({}); setShowFilter(false); }}
+                  />
+                </div>
+              )}
             </div>
-            {showFilter && (
-              <div className="relative right-[60%]">
-                <Filter onApply={handleFilterApply} onClear={handleFilterClear} />
-              </div>
-            )}
-            <Link to="/create_task">
-              <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
-                <FiPlus className="text-lg" /> Create
+
+            {/* Create Button */}
+            <Link to="/create_task" className="w-full sm:w-auto">
+              <button className="w-full sm:w-auto flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                <FiPlus /> Create Task
               </button>
             </Link>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <main className="p-6 flex-1 overflow-y-auto">
-          {loading ? (
-            <p className="text-center text-gray-500">Loading...</p>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+      {/* MAIN */}
+      <main className="p-4 sm:p-6">
+        {/* STATS */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <StatCard title="Total Tasks" value={filteredtasks.length} />
+          <StatCard title="Pending Tasks" value={filteredtasks.filter(t => t.status === "Pending").length} />
+          <StatCard title="Completed Tasks" value={filteredtasks.filter(t => t.status === "Completed").length} />
+        </div>
 
-                {/* TOTAL TASKS */}
-                <div className="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:shadow-md transition">
-                  <h4 className="text-gray-500 text-sm">Total Tasks</h4>
-                  <p className="text-2xl font-bold text-gray-800 mt-1">
-                    {filteredtasks.length}
-                  </p>
-                </div>
-
-                {/* PENDING TASKS */}
-                <div className="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:shadow-md transition">
-                  <h4 className="text-gray-500 text-sm">Pending Tasks</h4>
-                  <p className="text-2xl font-bold text-gray-800 mt-1">
-                    {filteredtasks.filter((task) => task.status === "Pending").length}
-                  </p>
-                </div>
-
-                {/* COMPLETED TASKS */}
-                <div className="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:shadow-md transition">
-                  <h4 className="text-gray-500 text-sm">Completed Tasks</h4>
-                  <p className="text-2xl font-bold text-gray-800 mt-1">
-                    {filteredtasks.filter((task) => task.status === "Completed").length}
-                  </p>
-                </div>
-
-              </div>
-
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredtasks.length === 0 ? (
-                  <p className="text-gray-500 text-center col-span-full">No tasks available.</p>
-                ) : (
-                  filteredtasks.map((entity) => (
-                    <EntityCard key={entity._id} entity={entity} onView={handleView} />
-                  ))
-                )}
-              </div>
-            </>
-          )}
-        </main>
-      </section>
+        {/* TASK CARDS */}
+        {loading ? (
+          <p className="text-center text-gray-500">Loading...</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {filteredtasks.length === 0 ? (
+              <p className="col-span-full text-center text-gray-500">
+                No tasks found.
+              </p>
+            ) : (
+              filteredtasks.map((entity) => (
+                <EntityCard key={entity._id} entity={entity} />
+              ))
+            )}
+          </div>
+        )}
+      </main>
     </div>
   );
 };
 
+/* STAT CARD */
+const StatCard = ({ title, value }) => (
+  <div className="bg-white rounded-xl shadow-sm p-5 border hover:shadow-md transition">
+    <h4 className="text-gray-500 text-sm">{title}</h4>
+    <p className="text-2xl font-bold text-gray-800 mt-1">{value}</p>
+  </div>
+);
 export default Dashboard;
