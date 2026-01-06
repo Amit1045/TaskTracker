@@ -41,7 +41,7 @@ To run this project locally:
 ### 1. 📦 **Clone the repository**
    ```bash
    git clone https://github.com/Amit1045/TaskTracker.git
-
+```
 
   2.📁 Navigate into the project
   ```bash
@@ -64,17 +64,17 @@ http://localhost:5173
 ```
 ### 💡 Usage
 
-# Once the app is running:
+ Once the app is running:
 
-# Type your task in the input field.
+ Type your task in the input field.
 
-# Press Add Task to save it.
+ Press Add Task to save it.
 
-# Tasks display in a list below.
+ Tasks display in a list below.
 
-# Click the Delete button next to a task to remove it.
+ Click the Delete button next to a task to remove it.
 
-## Tasks are saved in your browser’s LocalStorage so they remain after refreshing the page.
+Tasks are saved in your browser’s LocalStorage so they remain after refreshing the page.
 
 ### 📦 Deployment
 
@@ -122,6 +122,6 @@ Push (git push origin feature/xyz)
 
 Create a Pull Request
 ```
-📜 License
+### 📜 License
 
 This project is open source — feel free to use it for learning and share it with others.
